@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MCQ Test – ZIHAD English App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .mcq-container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+    .question {
+      margin-bottom: 20px;
+      background: #222;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
+    }
+    .question h4 {
+      margin: 0 0 10px;
+      color: #00ff99;
+    }
+    .option {
+      display: block;
+      margin: 5px 0;
+      padding: 8px 12px;
+      border-radius: 5px;
+      background: #333;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .option:hover {
+      background: #555;
+    }
+    .option.selected {
+      background: #00aa88;
+    }
+    .option.correct {
+      background: green;
+    }
+    .option.wrong {
+      background: crimson;
+    }
+    .timer {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      font-weight: bold;
+      font-size: 20px;
+      color: yellow;
+    }
+    .submit-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-weight: bold;
+      background-color: limegreen;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="timer" id="timer">10:00</div>
+  <div class="mcq-container" id="mcqBox"></div>
+  <div style="text-align:center">
+    <button class="submit-btn" onclick="submitTest()">Submit</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        q: "1. Identify the verb in this sentence: 'She sings beautifully.'",
+        options: ["She", "sings", "beautifully", "None"],
+        answer: 1
+      },
+      {
+        q: "2. Choose the correct passive voice: 'He writes a letter.'",
+        options: [
+          "A letter was written by him.",
+          "A letter is written by him.",
+          "A letter has been written.",
+          "He is written a letter."
+        ],
+        answer: 1
+      },
+      {
+        q: "3. What is the correct article: 'He is ___ honest man'?",
+        options: ["a", "an", "the", "no article"],
+        answer: 1
+      },
+      {
+        q: "4. Choose the correct spelling:",
+        options: ["Accomodation", "Acommodation", "Accommodation", "Accommadation"],
+        answer: 2
+      },
+      {
+        q: "5. Identify the adjective: 'The sky is blue.'",
+        options: ["sky", "is", "blue", "the"],
+        answer: 2
+      },
+      {
+        q: "6. Which one is a complex sentence?",
+        options: [
+          "He runs fast.",
+          "He runs fast and wins.",
+          "He runs fast because he practices.",
+          "Run!"
+        ],
+        answer: 2
+      },
+      {
+        q: "7. What is the noun form of 'decide'?",
+        options: ["deciding", "decided", "decision", "decider"],
+        answer: 2
+      },
+      {
+        q: "8. Fill in: 'He is ___ tallest in the class.'",
+        options: ["a", "an", "the", "no article"],
+        answer: 2
+      },
+      {
+        q: "9. Synonym of 'brave'?",
+        options: ["coward", "timid", "heroic", "shy"],
+        answer: 2
+      },
+      {
+        q: "10. What type of sentence is: 'Wow! What a goal!'",
+        options: ["Interrogative", "Declarative", "Exclamatory", "Imperative"],
+        answer: 2
+      },
+      // You can add more questions up to 30 here following same structure
+    ];
+
+    let userAnswers = [];
+    let timeLeft = 600;
+
+    function renderQuestions() {
+      const box = document.getElementById("mcqBox");
+      box.innerHTML = "";
+      questions.forEach((q, index) => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.innerHTML = `<h4>${q.q}</h4>`;
+        q.options.forEach((opt, i) => {
+          const optBtn = document.createElement("div");
+          optBtn.className = "option";
+          optBtn.textContent = opt;
+          optBtn.onclick = () => selectOption(index, i, optBtn);
+          qDiv.appendChild(optBtn);
+        });
+        box.appendChild(qDiv);
+      });
+    }
+
+    function selectOption(qIndex, optIndex, el) {
+      const opts = document.querySelectorAll(`.question:nth-child(${qIndex + 1}) .option`);
+      opts.forEach(opt => opt.classList.remove("selected"));
+      el.classList.add("selected");
+      userAnswers[qIndex] = optIndex;
+    }
+
+    function submitTest() {
+      clearInterval(timerInterval);
+      let score = 0;
+      questions.forEach((q, i) => {
+        const options = document.querySelectorAll(`.question:nth-child(${i + 1}) .option`);
+        options[q.answer].classList.add("correct");
+        if (userAnswers[i] !== undefined) {
+          if (userAnswers[i] === q.answer) {
+            score++;
+          } else {
+            options[userAnswers[i]].classList.add("wrong");
+          }
+        }
+      });
+
+      // Save to leaderboard
+      const name = localStorage.getItem("username") || "Unknown";
+      localStorage.setItem("score", score);
+
+      let leaderboard = JSON.parse(localStorage.getItem("leaderboard") || "[]");
+      leaderboard = leaderboard.filter(e => e.name !== name);
+      leaderboard.push({ name, score });
+      localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+
+      alert(`✅ You scored ${score} out of ${questions.length}`);
+    }
+
+    function startTimer() {
+      const timer = document.getElementById("timer");
+      timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          submitTest();
+          return;
+        }
+        let min = Math.floor(timeLeft / 60);
+        let sec = timeLeft % 60;
+        timer.textContent = `${min}:${sec.toString().padStart(2, "0")}`;
+        timeLeft--;
+      }, 1000);
+    }
+
+    renderQuestions();
+    startTimer();
+  </script>
+</body>
+</html>
+
+

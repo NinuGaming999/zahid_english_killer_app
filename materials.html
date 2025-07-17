@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ZIHAD English Study - Materials</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Study Materials (PDFs)</h1>
+    <div id="pdfList" class="pdf-list">
+      <!-- PDF links will be here -->
+    </div>
+  </div>
+
+  <script>
+    // Add your PDF files here
+    const pdfs = [
+      { title: "English Grammar Basics", url: "materials/grammar-basics.pdf" },
+      { title: "Tenses Summary", url: "materials/tenses-summary.pdf" },
+      { title: "Vocabulary List", url: "materials/vocabulary-list.pdf" },
+      { title: "Sample Writing Practice", url: "materials/writing-practice.pdf" }
+      // Add more here as needed
+    ];
+
+    const pdfList = document.getElementById("pdfList");
+
+    pdfs.forEach(pdf => {
+      const link = document.createElement("a");
+      link.href = pdf.url;
+      link.target = "_blank";
+      link.className = "pdf-link";
+      link.textContent = pdf.title;
+      pdfList.appendChild(link);
+    });
+  </script>
+</body>
+</html>
