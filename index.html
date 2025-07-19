@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ZIHAD English Study App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="login-container" id="loginBox">
+    <h2>Welcome to ZIHAD's English App</h2>
+    <input type="text" id="username" placeholder="Enter your name" />
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div class="dashboard hidden" id="dashboard">
+    <h2>Hello, <span id="userNameDisplay"></span>!</h2>
+    <a href="https://zoom.us" target="_blank" class="card">📺 Join Zoom Class</a>
+    <a href="mcq.html" class="card">📝 Take MCQ Test</a>
+    <div class="card"><a href="solving.html" class="dashboard-button">📘 Question Solving</a></div>
+    <a href="materials.html" class="card">📚 Study Materials (PDFs)</a>
+    <div class="card">💡 Suggestions (Coming Soon)</div>
+
+    <div class="leaderboard">
+      <h3>🏆 Leaderboard</h3>
+      <ul id="leaderboardList"></ul>
+    </div>
+
+    <button onclick="logout()" style="margin-top: 20px; background: crimson; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;">🚪 Logout</button>
+  </div>
+
+  <script>
+    const BIN_ID = "687aa3d9d356070b196d6065";
+    const API_KEY = "$2a$10$JMANv6SS1UOj/OLfYujzS.XMgw9EJX0Ejv7ZJ0fn4DVKhA7YHh1oK"; // 👈 Replace this with your real key
+
+    function login() {
+      const name = document.getElementById("username").value.trim();
+      if (name) {
+        localStorage.setItem("username", name);
+        showDashboard();
+      }
+    }
+
+    function showDashboard() {
+      const user = localStorage.getItem("username");
+      if (user) {
+        document.getElementById("loginBox").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+        document.getElementById("userNameDisplay").textContent = user;
+        loadLeaderboard();
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("username");
+      window.location.reload();
+    }
+
+    function loadLeaderboard() {
+      const list = document.getElementById("leaderboardList");
+
+      fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+        headers: { "X-Master-Key": API_KEY }
+      })
+        .then(res => res.json())
+        .then(data => {
+          const scores = data.record || [];
+          scores.sort((a, b) => b.score - a.score);
+          list.innerHTML = "";
+          scores.forEach((entry, index) => {
+            const li = document.createElement("li");
+            li.textContent = `#${index + 1} ${entry.name} - ${entry.score}`;
+            list.appendChild(li);
+          });
+        });
+    }
+
+    window.onload = showDashboard;
+  </script>
+</body>
+</html>
+
+
+
+
